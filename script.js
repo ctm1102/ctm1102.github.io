@@ -218,7 +218,7 @@ const snackNames = [
 ];
 
 /* --- [1. 데이터 정의] --- */
-const allergyTypes = ["메밀", "밀", "대두", "호두", "땅콩", "복숭아", "토마토", "난류(계란)", "우유", "새우", "게", "조개류", "굴", "전복", "홍합", "오징어", "고등어", "돼지고기", "쇠고기", "닭고기", "잣", "아황산류"];
+const allergyTypes = ["메밀", "밀", "대두", "호두", "땅콩", "복숭아", "토마토", "난류(계란)", "우유", "새우", "게", "조개류", "굴", "전복", "홍합", "오징어", "쇠고기", "돼지고기", "닭고기", "우유", "계란", "견과류"];
 
 /* --- [2. Supabase 설정] --- */
 const SUPABASE_URL = 'https://tpbtjnqexwubctkurpqp.supabase.co'; 
@@ -248,7 +248,9 @@ function openModal(type) {
     if (type === 'signup') renderSignupAllergies();
 }
 
-function closeModal() { document.getElementById("auth-modal").style.display = "none"; }
+function closeModal() { 
+    document.getElementById("auth-modal").style.display = "none"; 
+}
 
 function renderSignupAllergies() {
     const container = document.getElementById("signup-allergy-list");
@@ -273,16 +275,22 @@ async function handleSignup() {
     const { error } = await _supabase.from('users').insert([{ name, pw: hashed, allergies: selectedSignupAllergies, favorites: [], ratings: {} }]);
     if (error) return alert("가입 실패: " + error.message);
     alert("가입 성공! 이제 로그인해주세요.");
+    selectedSignupAllergies = [];
     openModal('login');
 }
 
 async function handleLogin() {
     const name = document.getElementById("login-name").value.trim();
     const pw = document.getElementById("login-pw").value.trim();
+    if (!name || !pw) return alert("이름과 비밀번호를 입력해주세요.");
     const { data: user } = await _supabase.from('users').select('*').eq('name', name).maybeSingle();
     if (!user || user.pw !== await hashPassword(pw)) return alert("정보가 일치하지 않습니다.");
-    currentUser = user; localStorage.setItem("snackUser", name);
-    closeModal(); updateUI();
+    currentUser = user; 
+    localStorage.setItem("snackUser", name);
+    document.getElementById("login-name").value = "";
+    document.getElementById("login-pw").value = "";
+    closeModal(); 
+    updateUI();
 }
 
 /* --- [5. 기능 로직] --- */
@@ -320,14 +328,14 @@ function renderSnacks() {
         // 즐겨찾기 버튼 클래스 'gh-fav-star'를 명시하여 회색 박스 제거
         li.innerHTML = `
             <span onclick="openSnackModal('${s.name}')" style="cursor:pointer; font-weight:800;">${s.name}</span>
-            <button class="gh-fav-star ${isFav ? 'on' : ''}" onclick="addFavorite('${s.name}')">${isFav ? '⭐' : '☆'}</button>
+            <button class="gh-fav-star ${isFav ? 'on' : ''}" onclick="addFavorite('${s.name}')"><svg width="24" height="24" viewBox="0 0 24 24" fill="${isFav ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 10.26 23.77 11.25 17.77 17.25 19.24 25.75 12 21.77 4.76 25.75 6.23 17.25 0.23 11.25 8.91 10.26 12 2"></polygon></svg></button>
         `;
         list.appendChild(li);
     });
 }
 
 function toggleFavorites() {
-    if (!currentUser) return alert("로그인 후 이용 가능합니다.");
+    if (!currentUser) return alert("로그인 후 이용할 수 있는 기능입니다. 로그인 후 다시 이용해주세요.");
     showFavOnly = !showFavOnly;
     const btn = document.getElementById("fav-toggle-btn");
     if(btn) btn.innerText = showFavOnly ? "👀 전체 간식 보기" : "⭐ 즐겨찾기 목록만 보기";
@@ -345,7 +353,7 @@ function pickRandom() {
 }
 
 async function addFavorite(name) {
-    if (!currentUser) return alert("로그인이 필요한 기능입니다.");
+    if (!currentUser) return alert("로그인 후 이용할 수 있는 기능입니다. 로그인 후 다시 이용해주세요.");
     const idx = currentUser.favorites.indexOf(name);
     idx > -1 ? currentUser.favorites.splice(idx, 1) : currentUser.favorites.push(name);
     
@@ -364,18 +372,35 @@ function setCategory(cat, e) {
 function openSnackModal(name) {
     activeSnackName = name;
     document.getElementById("detail-snack-name").innerText = name;
-    // 통계 로드 함수가 있다면 여기서 호출 (예: loadStats(name))
+    const snack = snackNames.find(s => s.name === name);
+    if (snack && snack.allergies.length > 0) {
+        document.getElementById("snack-detail-allergies").innerHTML = `<strong>알러지 정보:</strong> ${snack.allergies.join(", ")}`;
+    } else {
+        document.getElementById("snack-detail-allergies").innerHTML = `<strong>알러지 정보:</strong> 없음`;
+    }
     document.getElementById("snack-detail-modal").style.display = "flex";
 }
 
-function closeSnackModal() { document.getElementById("snack-detail-modal").style.display = "none"; }
-function logout() { localStorage.removeItem("snackUser"); location.reload(); }
+function closeSnackModal() { 
+    document.getElementById("snack-detail-modal").style.display = "none"; 
+}
+
+function logout() { 
+    currentUser = null;
+    showFavOnly = false;
+    localStorage.removeItem("snackUser"); 
+    location.reload(); 
+}
 
 window.onload = async () => {
     const saved = localStorage.getItem("snackUser");
     if (saved && _supabase) {
         const { data } = await _supabase.from('users').select('*').eq('name', saved).maybeSingle();
         if (data) { currentUser = data; updateUI(); }
+        else {
+            localStorage.removeItem("snackUser");
+            renderSnacks();
+        }
     } else { 
         renderSnacks(); 
     }

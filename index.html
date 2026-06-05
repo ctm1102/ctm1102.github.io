@@ -73,7 +73,7 @@
     <div class="gh-modal-box">
       <div class="gh-modal-head">
         <h2 id="modal-title">로그인</h2>
-        <span class="gh-modal-close" onclick="closeModal()">&times;</span>
+        <button class="gh-modal-close" onclick="closeModal()" aria-label="닫기">&times;</button>
       </div>
       <div id="login-form">
         <input type="text" id="login-name" class="gh-input" placeholder="성함">
@@ -89,35 +89,16 @@
     </div>
   </div>
 
-  <!-- 상세보기 모달 -->
+  <!-- 상세보기 모달 (리뷰 섹션 제거됨) -->
   <div id="snack-detail-modal" class="gh-modal">
     <div class="gh-modal-box">
       <div class="gh-modal-head">
         <h2 id="detail-snack-name">이름</h2>
-        <span class="gh-modal-close" onclick="closeSnackModal()">&times;</span>
+        <button class="gh-modal-close" onclick="closeSnackModal()" aria-label="닫기">&times;</button>
       </div>
-      <div class="coupon-stats-card">
-        <div class="stats-left">
-          <span id="avg-num">0.0</span>
-          <div style="color:#ffcc00; font-size:12px;">★★★★★</div>
-        </div>
-        <div class="stats-right">
-          <div class="stat-row"><span>5</span><div class="stat-bar-bg"><div class="stat-bar-fill"></div></div></div>
-          <div class="stat-row"><span>4</span><div class="stat-bar-bg"><div class="stat-bar-fill"></div></div></div>
-          <div class="stat-row"><span>3</span><div class="stat-bar-bg"><div class="stat-bar-fill"></div></div></div>
-          <div class="stat-row"><span>2</span><div class="stat-bar-bg"><div class="stat-bar-fill"></div></div></div>
-          <div class="stat-row"><span>1</span><div class="stat-bar-bg"><div class="stat-bar-fill"></div></div></div>
-        </div>
+      <div class="snack-detail-info">
+        <p id="snack-detail-allergies" style="margin: 10px 0; font-size: 14px;"></p>
       </div>
-      <div class="star-rating">
-        <input type="radio" id="r5" name="rating" value="5"><label for="r5">★</label>
-        <input type="radio" id="r4" name="rating" value="4"><label for="r4">★</label>
-        <input type="radio" id="r3" name="rating" value="3"><label for="r3">★</label>
-        <input type="radio" id="r2" name="rating" value="2"><label for="r2">★</label>
-        <input type="radio" id="r1" name="rating" value="1"><label for="r1">★</label>
-      </div>
-      <textarea id="review-comment" class="review-textarea" placeholder="리뷰를 남겨주세요."></textarea>
-      <button class="gh-btn-submit" onclick="submitRating()" style="margin-top:10px;">등록하기</button>
     </div>
   </div>
 
